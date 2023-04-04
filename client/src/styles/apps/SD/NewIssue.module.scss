@@ -1,0 +1,203 @@
+.newIssueWrapper {
+    height: 100vh;
+    width: 100%;
+    display: grid;
+    align-content: center;
+    justify-content: center;
+
+
+    .issueForm {
+        width: 26.25rem;
+        background-color: #FDFFFC;
+        border: 0.125rem solid #0565B3;
+        border-radius: 0.75rem;
+        color: #0A0F0D;
+
+        .header {
+            position: relative;
+            border-bottom: 0.125rem solid #0565B3;
+            padding: 0.75rem 0.75rem;
+
+            &__title {
+                margin: 0 auto;
+                font-weight: 500;
+                font-size: 1.25rem;
+
+                strong {
+                    font-weight: 700;
+                }
+            }
+
+            &__btn {
+                cursor: pointer;
+                position: absolute;
+                top: 50%;
+                right: 1rem;
+                transform: translateY(-50%);
+                transition: fill .3s;
+
+                &:hover {
+                    transition: .3s;
+                    fill: rgb(141, 87, 87);
+                }
+            }
+        }
+
+        .selectionWrapper {
+            padding: 0 0.75rem;
+
+            .servicesSelctor {
+                margin-top: 1.5rem;
+                position: relative;
+
+                .dropdownHeader {
+                    cursor: pointer;
+                    border: 0.125rem solid #0565B3;
+                    padding: 0 0.25rem;
+                    font-size: 1rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    height: 3rem;
+
+                    svg {
+                        margin-right: 0.75rem;
+                    }
+                }
+
+                .dropdown {
+                    cursor: pointer;
+                    background-color: #FDFFFC;
+                    position: absolute;
+                    border: 0.125rem solid #0565B3;
+                    border-top: none;
+                    width: 100%;
+                    transition: .3s;
+                    border-bottom-left-radius: 0.25rem;
+                    border-bottom-right-radius: 0.25rem;
+
+                    &__option {
+                        min-height: 3rem;
+                        line-height: 3rem;
+                        padding: 0 0.25rem;
+                        border-bottom: 0.063rem solid #0565B3;
+
+                        &:last-child {
+                            border-bottom: none;
+                        }
+
+                        &:hover {
+                            background-color: #81c0f3;
+                            transition: .3s;
+                        }
+                    }
+                }
+            }
+
+            .topic {
+                font-family: "Roboto", sans-serif;
+                margin-top: 1rem;
+                width: 100%;
+                height: 3rem;
+                padding: 0 0.5rem;
+                border: 0.125rem solid #0565B3;
+                font-size: 1rem;
+                font-weight: 300;
+                outline: none;
+            }
+
+            .issue {
+                font-family: "Roboto", sans-serif;
+                resize: vertical;
+                min-height: 15rem;
+                width: 100%;
+                outline: none;
+                margin-top: 1rem;
+                border: 0.125rem solid #0565B3;
+                padding: 0.5rem;
+                font-size: 1rem;
+                font-weight: 300;
+            }
+        }
+
+        .submit {
+            cursor: pointer;
+            margin-top: 1rem;
+            width: 100%;
+            outline: none;
+            border: none;
+            border-top: 0.125rem solid #0565B3;
+            height: 3rem;
+            border-bottom-left-radius: 0.625rem;
+            border-bottom-right-radius: 0.625rem;
+
+            background-color: #fff;
+            color: #0565B3;
+
+            font-size: 1.125rem;
+            font-weight: 700;
+            transition: color .4s, background-color .4s;
+
+            &:hover {
+                background-color: #0565B3;
+                transition: color .4s, background-color .4s;
+                color: #fff;
+            }
+        }
+    }
+
+    .error {
+        text-align: center;
+
+        &__code {
+            font-size: 3rem;
+        }
+
+        &__message {
+            font-size: 1.125rem;
+            color: grey;
+        }
+    }
+}
+
+.submitted {
+    border: 2px solid grey !important;
+    color: lightgrey;
+}
+
+.mobile {
+    width: 100vw;
+    height: 100vh;
+
+    .issueForm {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        border-radius: 0;
+
+        .header {
+            height: 5rem;
+            display: grid;
+            align-content: center;
+            justify-content: left;
+        }
+
+        .selectionWrapper {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+
+            .issue {
+                height: 100%;
+                flex: 1;
+                resize: none;
+            }
+            
+        }
+
+        .submit {
+            height: 5rem;
+        }
+    }
+}
