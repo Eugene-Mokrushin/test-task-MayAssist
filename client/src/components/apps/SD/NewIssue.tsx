@@ -28,7 +28,6 @@ function NewIssue() {
         const fetchServices = async (fetchAttempt = 0) => {
             try {
                 const response = await fetch(import.meta.env.VITE_SD_ISSUE_API_GET);
-                console.log(response)
                 if (response.status === 401 || !params.jwt_token) {
                     navigate("/apps/sd")
                 } else if (!response.ok) { setIsError({ errCode: response.status, errMsg: response.statusText }) }
@@ -63,21 +62,30 @@ function NewIssue() {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        console.log(e)
+        if (selectedOption === -1) {
+            return
+        }
         setIsSubmitted(true)
         let fetchAttempt = 0
         while (fetchAttempt < 3) {
             fetchAttempt++;
             try {
+                const bodyData = {
+                    topic: formData.topic,
+                    description: formData.issue,
+                    service_path: servicesState.find(s => s.id === selectedOption)?.path
+                }
                 const response = await fetch(import.meta.env.VITE_SD_ISSUE_API_POST, {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"
-                    }
+                        "Content-Type": "application/json",
+                        'Authorization': `Bearer ${params.jwt_token}`
+                    },
+                    body: JSON.stringify(bodyData)
                 });
                 if (response.ok) {
-                    // Close built-in browser if backend returned code 2xx
-                    // TG.closeBrowser();
+                    const { id } = await response.json()
+                    fetch('')
                     return;
                 }
                 if (response.status >= 400 && response.status < 500) {
@@ -156,6 +164,7 @@ function NewIssue() {
                         <textarea
                             name="issue"
                             readOnly={isSubmitted}
+                            required={true}
                             className={`${classes.issue} ${isSubmitted && classes.submitted}`}
                             placeholder="Описание проблемы"
                             value={formData.issue}
