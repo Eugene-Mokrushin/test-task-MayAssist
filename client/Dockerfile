@@ -4,9 +4,8 @@ COPY . /app
 RUN npm install
 RUN npm run build
 
-FROM ubuntu
-RUN apt-get update
-RUN apt-get install nginx -y
-COPY --from=build /app/dist /var/www/html/
+FROM amazonlinux
+RUN yum -y update && yum -y install nginx
+COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
-CMD ["nginx","-g","daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]
