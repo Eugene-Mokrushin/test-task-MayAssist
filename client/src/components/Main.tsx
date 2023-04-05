@@ -4,6 +4,9 @@ import Apps from './apps/Apps'
 function Main() {
     return (
         <div className='mainWrapper'>
+            <Routes>
+                <Route path="/apps/*" element={<Apps />} />
+            </Routes>
         </div>
     )
 }
