@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { isMobile } from 'react-device-detect';
 import { Services } from "@/types"
 import classes from '@/styles/apps/SD/NewIssue.module.scss';
+import { v4 as uuidv4 } from 'uuid';
 
 type SearchParams = {
     jwt_token?: string;
@@ -51,7 +52,7 @@ function NewIssue() {
     const services = servicesState.map(service => {
         return (
             <div
-                key={crypto.randomUUID()}
+                key={uuidv4()}
                 className={classes.dropdown__option}
                 onClick={() => handleOptionClick(service.id)}
             >
