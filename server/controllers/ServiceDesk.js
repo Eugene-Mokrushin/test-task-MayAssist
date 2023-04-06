@@ -6,7 +6,7 @@ import dotenv from "dotenv"
 
 dotenv.config()
 
-export const postRespons = async (res, req) => {
+export const postRespons = async (req, res) => {
     try {
         const { token, message } = req.body
         const { chat_id } = jwt.verify(token, process.env.JWT_SECRET)
