@@ -166,10 +166,10 @@
 }
 
 .mobile {
-    max-width: 100vw;
-    width: 100vw;
-    max-height: 100vh;
-    height: 100vh;
+    max-width: 90vw;
+    width: 90vw;
+    max-height: 90vh;
+    height: 90vh;
 
     .issueForm {
         display: flex;
@@ -187,33 +187,14 @@
 
         .selectionWrapper {
             padding: 0rem;
-            height: 100%;
             display: flex;
             flex-direction: column;
 
-            .servicesSelctor {
-                margin-top: 1.5rem;
-                position: relative;
-
-                .dropdownHeader {
-                    padding: 0rem;
-                }
-            }
-
-            .topic {
-                padding: 0rem;
-            }
-
             .issue {
-                padding: 0rem;
-            }
-
-            .issue {
-                height: 100%;
                 flex: 1;
                 resize: none;
             }
-
+            
         }
 
         .submit {
