@@ -23,7 +23,11 @@ function NewIssue() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false)
     const params: SearchParams = Object.fromEntries([...searchParams].map(([key, val]) => {
-        return [key, Buffer.from(val, "base64").toString("utf-8")];
+        if (key === "jwt_token") {
+            return [key, val]
+        } else {
+            return [key, Buffer.from(val, "base64").toString("utf-8")]
+        }
     }));
     const [formData, setFormData] = useState(
         { topic: params.topic ? params.topic : "", issue: params.issue_body ? params.issue_body : "" }
