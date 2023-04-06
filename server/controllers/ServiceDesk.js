@@ -8,7 +8,7 @@ dotenv.config()
 
 export const postRespons = async (req, res) => {
     try {
-        const { token, message } = req.body
+        const { token, text } = req.body
         const { chat_id } = jwt.verify(token, process.env.JWT_SECRET)
         const response = await fetch(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`, {
             method: "POST",
@@ -17,7 +17,7 @@ export const postRespons = async (req, res) => {
             },
             body: JSON.stringify({
                 chat_id,
-                text: message,
+                text,
                 reply_markup: {
                     remove_keyboard: true
                 }
@@ -33,7 +33,7 @@ export const postRespons = async (req, res) => {
         const year = currentDate.getFullYear();
         const formattedDate = `${hours}:${minutes} ${day}/${month}/${year}`
         fs.appendFile('./logs/sdLog.txt', error + ' ' + formattedDate + '\n', (err) => {
-            if (err) throw err;
+            if (error) throw error;
             console.log('Log written to the file');
         });
         res.status(500).json({ message: error })

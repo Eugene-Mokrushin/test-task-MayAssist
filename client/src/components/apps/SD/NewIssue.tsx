@@ -23,7 +23,7 @@ function NewIssue() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false)
     const params: SearchParams = Object.fromEntries([...searchParams].map(([key, val]) => {
-        if (key === "jwt_token") {
+        if (key === "jwt_token" || key === "service_id") {
             return [key, val]
         } else {
             return [key, Buffer.from(val, "base64").toString("utf-8")]
@@ -98,22 +98,24 @@ function NewIssue() {
                 if (response.ok) {
                     const { id } = await response.json()
                     const message = "Заявка создана. Номер заявки: " + id
-                    const res = await fetch(`${import.meta.env.VITE_BACKEND_API}/sd/new_issue`, {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            token: params.jwt_token,
-                            text: message,
-                            reply_markup: {
-                                remove_keyboard: true
-                            }
+                    try {
+                        await fetch(`${import.meta.env.VITE_BACKEND_API}/sd/new_issue`, {
+                            method: "POST",
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                token: params.jwt_token,
+                                text: message,
+                                reply_markup: {
+                                    remove_keyboard: true
+                                }
+                            })
                         })
-                    })
-                    res.ok ?
-                        window.location.href = "https://telegram.me/May_Assist_bot" :
-                        setIsError({ errCode: id, errMsg: "Номер вашей заявки" })
+                        window.location.href = "https://telegram.me/May_Assist_bot"
+                    } catch (error) {
+                        setIsError({ errCode: id, errMsg: "Номер вашего обращения" })
+                    }
                     return;
                 }
                 if (response.status >= 400 && response.status < 500) {
