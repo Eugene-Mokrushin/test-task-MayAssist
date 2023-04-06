@@ -191,12 +191,29 @@
             display: flex;
             flex-direction: column;
 
+            .servicesSelctor {
+                margin-top: 1.5rem;
+                position: relative;
+
+                .dropdownHeader {
+                    padding: 0rem;
+                }
+            }
+
+            .topic {
+                padding: 0rem;
+            }
+
+            .issue {
+                padding: 0rem;
+            }
+
             .issue {
                 height: 100%;
                 flex: 1;
                 resize: none;
             }
-            
+
         }
 
         .submit {
