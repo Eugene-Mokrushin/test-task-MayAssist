@@ -16,6 +16,7 @@
     "nodemon": "^2.0.22"
   },
   "dependencies": {
+    "base64-js": "^1.5.1",
     "jsonwebtoken": "^9.0.0",
     "telegraf": "^4.12.2"
   }

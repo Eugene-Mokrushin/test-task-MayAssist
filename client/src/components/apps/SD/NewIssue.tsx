@@ -4,7 +4,7 @@ import { isMobile } from 'react-device-detect';
 import { Services } from "@/types"
 import classes from '@/styles/apps/SD/NewIssue.module.scss';
 import { v4 as uuidv4 } from 'uuid';
-import { Buffer } from "buffer";
+import base64 from "base64-js"
 
 type SearchParams = {
     jwt_token?: string;
@@ -22,15 +22,11 @@ function NewIssue() {
     const [selectedOption, setSelectedOption] = useState<number>(-1);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false)
-    const params: SearchParams = Object.fromEntries([...searchParams].map(([key, val]) => {
-        if (key === "jwt_token" || key === "service_id") {
-            return [key, val]
-        } else {
-            return [key, Buffer.from(val, "base64").toString("utf-8")]
-        }
-    }));
+    const params: SearchParams = Object.fromEntries([...searchParams])
     const [formData, setFormData] = useState(
-        { topic: params.topic ? params.topic : "", issue: params.issue_body ? params.issue_body : "" }
+        {
+            topic: params.topic ? new TextDecoder().decode(base64.toByteArray(params.topic)) : "", issue: params.issue_body ? new TextDecoder().decode(base64.toByteArray(params.issue_body)) : ""
+        }
     )
     useEffect(() => {
         const fetchServices = async (fetchAttempt = 0) => {
@@ -70,9 +66,7 @@ function NewIssue() {
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (selectedOption === -1) {
-            return
-        }
+        if (selectedOption === -1 || isSubmitted) return
         setIsSubmitted(true)
         let fetchAttempt = 0
         while (fetchAttempt < 3) {
@@ -97,26 +91,21 @@ function NewIssue() {
                 clearTimeout(timeout);
                 if (response.ok) {
                     const { id } = await response.json()
-                    const message = "Заявка создана. Номер заявки: " + id
-                    try {
-                        await fetch(`${import.meta.env.VITE_BACKEND_API}/sd/new_issue`, {
-                            method: "POST",
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                                token: params.jwt_token,
-                                text: message,
-                                reply_markup: {
-                                    remove_keyboard: true
-                                }
-                            })
+                    const message = `Заявка создана. Номер заявки: ${id}`
+                    await fetch(`${import.meta.env.VITE_BACKEND_API}/sd/new_issue`, {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            token: params.jwt_token,
+                            text: message,
+                            reply_markup: {
+                                remove_keyboard: true
+                            }
                         })
-                        window.location.href = "https://telegram.me/May_Assist_bot"
-                    } catch (error) {
-                        setIsError({ errCode: id, errMsg: "Номер вашего обращения" })
-                    }
-                    return;
+                    })
+                    window.location.href = "https://telegram.me/May_Assist_bot"
                 }
                 if (response.status >= 400 && response.status < 500) {
                     setIsError({ errCode: response.status, errMsg: response.statusText })

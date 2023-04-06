@@ -1,7 +1,7 @@
 import { Telegraf, Scenes, session, Markup } from "telegraf"
-
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
+import base64 from "base64-js"
 
 dotenv.config()
 
@@ -46,8 +46,8 @@ const serviceDeskScene = new Scenes.WizardScene(
         const messageId = ctx.callbackQuery.message.message_id;
         await ctx.telegram.deleteMessage(chat_id, messageId);
         const token = jwt.sign({ chat_id }, process.env.JWT_SECRET)
-        const topic = Buffer.from(ctx.wizard.state.topic, "utf-8").toString("base64")
-        const issue = Buffer.from(ctx.wizard.state.issue, "utf-8").toString("base64")
+        const topic = base64.fromByteArray(new TextEncoder().encode(ctx.wizard.state.topic))
+        const issue = base64.fromByteArray(new TextEncoder().encode(ctx.wizard.state.issue))
         const service = ctx.wizard.state.service
         const url = `${process.env.FRONT_URL}apps/sd/new_issue?jwt_token=${token}&topic=${topic}&issue_body=${issue}&service_id=${service}`
         const inlineKeyboard = Markup.inlineKeyboard([

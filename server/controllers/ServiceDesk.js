@@ -17,10 +17,7 @@ export const postRespons = async (req, res) => {
             },
             body: JSON.stringify({
                 chat_id,
-                text,
-                reply_markup: {
-                    remove_keyboard: true
-                }
+                text
             })
         })
         res.status(response.status)
