@@ -8,7 +8,8 @@ dotenv.config()
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.start((ctx) => {
-    ctx.reply("Hello Mom!")
+    ctx.replyWithHTML(`<b>Бот MayAssist</b>`)
+    ctx.replyWithHTML(`Доступны следующие сервисы: \n • Помощь Service Desk`)
 })
 
 const serviceDeskScene = new Scenes.WizardScene(
@@ -42,31 +43,28 @@ const serviceDeskScene = new Scenes.WizardScene(
             ctx.wizard.state.service = '55712';
         }
 
-        const chatId = ctx.chat.id;
+        const chat_id = ctx.chat.id;
         const messageId = ctx.callbackQuery.message.message_id;
-        await ctx.telegram.deleteMessage(chatId, messageId);
+        await ctx.telegram.deleteMessage(chat_id, messageId);
 
+        // const user_id = ctx.from.id
+        // const callbackQuery = ctx.callbackQuery.id
+        const token = jwt.sign({ chat_id }, process.env.JWT_SECRET)
+        const topic = Buffer.from(ctx.wizard.state.topic, "utf-8").toString("base64")
+        const issue = Buffer.from(ctx.wizard.state.issue, "utf-8").toString("base64")
+        const service = ctx.wizard.state.service
+        const url = `${process.env.FRONT_URL}apps/sd/new_issue?jwt_token=${token}&topic=${topic}&issue_body=${issue}&service_id=${service}`
 
-        console.log(ctx.wizard.state)
+        console.log(url)
         const inlineKeyboard = Markup.inlineKeyboard([
-            Markup.button.callback('Открыть в браузере', 'open_browser')
+            Markup.button.url('Открыть в браузере', url)
         ]);
-
-
         ctx.reply("Оставьте заявку здесь", inlineKeyboard)
-            .then(() => {
-                const user_id = ctx.from.id
-                const callbackQuery = ctx.callbackQuery.id
-                const token = jwt.sign({ user_id, callbackQuery }, process.env.JWT_SECRET)
-                const topic = Buffer.from(ctx.wizard.state.topic).toString('base64')
-                const issue = Buffer.from(ctx.wizard.state.issue).toString('base64')
-                const service = ctx.wizard.state.service
-                fetch(`${process.env.FRONT_URL}/apps/sd/new_issue?jwt_token=${token}&topic=${topic}&issue_body=${issue}&service_id=${service}`)
-            })
         return ctx.scene.leave();
     }
 );
 const stage = new Scenes.Stage([serviceDeskScene])
+
 bot.use(session())
 bot.use(stage.middleware())
 

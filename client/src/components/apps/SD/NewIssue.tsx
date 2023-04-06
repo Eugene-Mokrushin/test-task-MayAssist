@@ -4,6 +4,7 @@ import { isMobile } from 'react-device-detect';
 import { Services } from "@/types"
 import classes from '@/styles/apps/SD/NewIssue.module.scss';
 import { v4 as uuidv4 } from 'uuid';
+import { Buffer } from "buffer";
 
 type SearchParams = {
     jwt_token?: string;
@@ -21,7 +22,9 @@ function NewIssue() {
     const [selectedOption, setSelectedOption] = useState<number>(-1);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false)
-    const params: SearchParams = Object.fromEntries([...searchParams])
+    const params: SearchParams = Object.fromEntries([...searchParams].map(([key, val]) => {
+        return [key, Buffer.from(val, "base64").toString("utf-8")];
+    }));
     const [formData, setFormData] = useState(
         { topic: params.topic ? params.topic : "", issue: params.issue_body ? params.issue_body : "" }
     )
@@ -76,17 +79,37 @@ function NewIssue() {
                     description: formData.issue,
                     service_path: servicesState.find(s => s.id === selectedOption)?.path
                 }
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 60000);
                 const response = await fetch(import.meta.env.VITE_SD_ISSUE_API_POST, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         'Authorization': `Bearer ${params.jwt_token}`
                     },
-                    body: JSON.stringify(bodyData)
+                    body: JSON.stringify(bodyData),
+                    signal: controller.signal
                 });
+                clearTimeout(timeout);
                 if (response.ok) {
                     const { id } = await response.json()
-                    fetch('')
+                    const message = "Заявка создана. Номер заявки: " + id
+                    const res = await fetch(`${import.meta.env.VITE_BACKEND_API}/sd/new_issue`, {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            token: params.jwt_token,
+                            text: message,
+                            reply_markup: {
+                                remove_keyboard: true
+                            }
+                        })
+                    })
+                    res.ok ?
+                        window.location.href = "https://telegram.me/May_Assist_bot" :
+                        setIsError({ errCode: id, errMsg: "Номер вашей заявки" })
                     return;
                 }
                 if (response.status >= 400 && response.status < 500) {
@@ -98,14 +121,24 @@ function NewIssue() {
                         errCode: response.status,
                         errMsg: response.statusText ?
                             response.statusText :
-                            "Серевер не отвечает \n Попрубуйте оставить заявку позже"
+                            "Серевер не отвечает. \n Попрубуйте оставить заявку позже"
                     })
                     continue;
                 }
                 continue;
             } catch (error) {
-                navigate("/apps/sd")
-                continue;
+                if (error instanceof Error) {
+                    if (error.name === 'AbortError') {
+                        setIsError({
+                            errCode: 500,
+                            errMsg: "Серевер не отвечает. \n Попрубуйте оставить заявку позже"
+                        })
+                        continue;
+                    } else {
+                        navigate("/apps/sd")
+                        continue;
+                    }
+                }
             }
         }
     }
@@ -124,13 +157,31 @@ function NewIssue() {
         })
     }
 
+    const handleCloseBrowser = () => {
+        const message = "Заявка не создана"
+        fetch(`${import.meta.env.VITE_BACKEND_API}/sd/new_issue`, {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                token: params.jwt_token,
+                text: message,
+                reply_markup: {
+                    remove_keyboard: true
+                }
+            })
+        })
+        window.location.href = "https://telegram.me/May_Assist_bot"
+    }
+
     return (
         <div className={`${classes.newIssueWrapper} ${isMobile && classes.mobile}`}>
             {!(isError.errCode !== -1) ? (
                 <form onSubmit={(e) => handleSubmit(e)} className={classes.issueForm}>
                     <div className={classes.header}>
                         <div className={classes.header__title}>Создание новой зявки в <strong>MAY360</strong></div>
-                        <svg height="1.5rem" fill="rgb(90, 90, 90)" className={classes.header__btn} version="1.1" viewBox="0 0 512 512" xmlSpace="preserve" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
+                        <svg onClick={handleCloseBrowser} height="1.5rem" fill="rgb(90, 90, 90)" className={classes.header__btn} version="1.1" viewBox="0 0 512 512" xmlSpace="preserve" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
                             <path d="M437.5,386.6L306.9,256l130.6-130.6c14.1-14.1,14.1-36.8,0-50.9c-14.1-14.1-36.8-14.1-50.9,0L256,205.1L125.4,74.5  c-14.1-14.1-36.8-14.1-50.9,0c-14.1,14.1-14.1,36.8,0,50.9L205.1,256L74.5,386.6c-14.1,14.1-14.1,36.8,0,50.9  c14.1,14.1,36.8,14.1,50.9,0L256,306.9l130.6,130.6c14.1,14.1,36.8,14.1,50.9,0C451.5,423.4,451.5,400.6,437.5,386.6z" />
                         </svg>
                     </div>
